@@ -2,8 +2,9 @@
 import axios from "axios";
 import { useState } from "react";
 import { RxCross1 } from "react-icons/rx";
+import { validateFrom } from "../utils/validation";
 
-const AddTaskForm = ({ isModalOpen, setIsModalOpen }) => {
+const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
@@ -21,19 +22,27 @@ const AddTaskForm = ({ isModalOpen, setIsModalOpen }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (taskData.title.trim() === "") {
-      alert("Title is required.");
-      return;
-    }
-    // Handle task submission logic here
-    console.log("TaskData ", taskData);
-    // Reset form
-    setTaskData({ title: "", description: "", category: "To-Do" });
-    setIsModalOpen(false);
+
+    if (!validateFrom(taskData)) return;
+
+    // console.log("TaskData ", taskData);
 
     // send it to server
-    // const data = await axios.post("http://localhost:5000/tasks", taskData);
-    // console.log(data);
+    const { data } = await axios.post("http://localhost:5000/tasks", taskData);
+
+    if (data.insertedId > 0) {
+      // console.log("task added");
+    }
+
+    // Reset form
+    setTaskData({
+      title: "",
+      description: "",
+      category: "To-Do",
+      time: new Date().toISOString(),
+    });
+    setIsModalOpen(false);
+    refetch();
   };
 
   return (
