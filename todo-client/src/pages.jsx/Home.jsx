@@ -1,15 +1,33 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { AuthContext } from "../provider/AuthProvider";
 import logo from "../assets/todo_logo.png";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Home = () => {
-  const { user, loading, handleGoogleSignIn, logOut } = useContext(AuthContext);
+  const { user, handleGoogleSignIn } = useContext(AuthContext);
   const navigate = useNavigate();
-  console.log(user?.displayName);
+  const location = useLocation();
+  // console.log(user?.displayName);
+  // redirected from a protected route
+  const from = location.state?.from?.pathname || "/task";
+
+  // prevent login again after already login user
+  useEffect(() => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
+  // handle login
+
   const handleGooleLogin = async () => {
-    await handleGoogleSignIn();
-    navigate("/todo");
+    try {
+      const result = await handleGoogleSignIn();
+      if (result) {
+        navigate(from, { replace: true });
+      }
+    } catch (error) {
+      console.error("Google Sign-In Failed:", error.message);
+    }
   };
   return (
     <div className="flex items-center justify-center min-h-[90vh]">

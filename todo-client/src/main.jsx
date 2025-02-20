@@ -11,7 +11,7 @@ import PrivateRoutes from "./routes/PrivateRoutes.jsx";
 const router = createBrowserRouter([
   { path: "/", element: <Home /> },
   {
-    path: "/todo",
+    path: "/task",
     element: (
       <PrivateRoutes>
         <TasksPage />
