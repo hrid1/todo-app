@@ -1,14 +1,19 @@
 // react icons
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { validateFrom } from "../utils/validation";
+import { AuthContext } from "../provider/AuthProvider";
 
 const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
+  const { user } = useContext(AuthContext);
+  console.log(user.email);
+
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
     category: "To-Do",
+    owner: user?.email,
     time: new Date().toISOString(),
   });
 
@@ -31,7 +36,7 @@ const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
     const { data } = await axios.post("http://localhost:5000/tasks", taskData);
 
     if (data.insertedId > 0) {
-      // console.log("task added");
+      console.log("task added");
     }
 
     // Reset form
@@ -39,7 +44,8 @@ const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
       title: "",
       description: "",
       category: "To-Do",
-      time: new Date().toISOString(),
+      ...taskData,
+      // time: new Date().toISOString(),
     });
     setIsModalOpen(false);
     refetch();

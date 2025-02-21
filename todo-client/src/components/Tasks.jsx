@@ -1,7 +1,7 @@
 import { FaPlus } from "react-icons/fa";
 import TaskCard from "./TaskCard";
 import AddTaskForm from "./AddTaskForm";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -11,18 +11,25 @@ import {
   useDraggable,
 } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
+import TaskColumn from "./TaskColumn";
+import Spiner from "./Spiner";
+import { AuthContext } from "../provider/AuthProvider";
 
 //
 const Tasks = () => {
+  const { user } = useContext(AuthContext);
+  const email = user.email;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAddTask = () => {
     setIsModalOpen(!isModalOpen);
   };
   // fetch data
   const { data: tasks = [], refetch } = useQuery({
-    queryKey: ["tasks"],
+    queryKey: ["tasks", email],
     queryFn: async () => {
-      const response = await axios.get("http://localhost:5000/tasks");
+      const response = await axios.get("http://localhost:5000/tasks", {
+        params: { email },
+      });
       return response.data;
     },
   });
@@ -37,13 +44,11 @@ const Tasks = () => {
   });
 
   useEffect(() => {
-    if (tasks.length > 0) {
-      setTaskState({
-        todo: tasks.filter((task) => task.category === "To-Do"),
-        inProgress: tasks.filter((task) => task.category === "In Progress"),
-        done: tasks.filter((task) => task.category === "Done"),
-      });
-    }
+    setTaskState({
+      todo: tasks.filter((task) => task.category === "To-Do"),
+      inProgress: tasks.filter((task) => task.category === "In Progress"),
+      done: tasks.filter((task) => task.category === "Done"),
+    });
   }, [tasks]); // Runs when `tasks` updates
 
   console.log(tasks);
@@ -54,8 +59,8 @@ const Tasks = () => {
     const { active, over } = event;
     if (!over) return;
     const activeId = active.id;
-    const sourceColumn = active.data.current.sortable.containerId;
-    const targetColumn = over.data.current?.sortable.containerId;
+    const sourceCategory = active.data.current.sortable.containerId;
+    const targetCategory = over.data.current?.sortable.containerId;
 
     if (!sourceCategory || !targetCategory || sourceCategory === targetCategory)
       return;
@@ -75,6 +80,9 @@ const Tasks = () => {
       ],
     }));
   };
+
+  if (tasks.length < 0) return <Spiner />;
+
   return (
     <div className="max-w-6xl mx-auto bg">
       <div className="flex items-center justify-between p-4">
@@ -95,11 +103,11 @@ const Tasks = () => {
       {/* task column */}
       <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
         <section className="  grid grid-cols-1 sm:grid-cols-3 mx-auto gap-4 md:gap-6 min-h-screen p-2">
-          <div className=" h-full p-3.5 bg-gray-200/60 rounded-md ">
-            <h2 className="font-semibold text-xl mb-4">To do</h2>
+          <div className=" h-full p-3.5 bg-gray-200/60 rounded-md">
+            <h2 className="font-semibold text-xl mb-4">To Do</h2>
             <div className="space-y-2.5">
-              {taskState?.todo?.length > 0 ? (
-                taskState?.todo?.map((task) => (
+              {taskState.todo.length > 0 ? (
+                taskState.todo.map((task) => (
                   <TaskCard key={task._id} task={task} refetch={refetch} />
                 ))
               ) : (
@@ -107,6 +115,7 @@ const Tasks = () => {
               )}
             </div>
           </div>
+
           <div className=" h-full p-3.5 bg-gray-200/60 rounded-md">
             <h2 className="font-semibold text-xl mb-4">In Progress</h2>
             <div className="space-y-2.5">
