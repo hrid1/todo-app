@@ -33,17 +33,20 @@ const EditTask = ({ isModalOpen, setIsModalOpen, task, refetch }) => {
       taskData
     );
 
-    console.log(data);
+    // console.log(data);
+    if (data.modifiedCount > 0) {
+      // fetch
+      refetch();
+      // Reset form
+      setTaskData({
+        title: "",
+        description: "",
+        category: "To-Do",
+        time: new Date().toISOString(),
+      });
 
-    // Reset form
-    setTaskData({
-      title: "",
-      description: "",
-      category: "To-Do",
-      time: new Date().toISOString(),
-    });
-    setIsModalOpen(false);
-    refetch();
+      setIsModalOpen(false);
+    }
   };
 
   return (
@@ -68,7 +71,7 @@ const EditTask = ({ isModalOpen, setIsModalOpen, task, refetch }) => {
                 className="text-[1rem] font-[500] text-[#464646]"
                 htmlFor="title"
               >
-                Title (max 50 characters)
+                Title
               </label>
               <input
                 type="text"
@@ -87,7 +90,7 @@ const EditTask = ({ isModalOpen, setIsModalOpen, task, refetch }) => {
                 className="text-[1rem] font-[500] text-[#464646]"
                 htmlFor="description"
               >
-                Description (max 200 characters)
+                Description{" "}
               </label>
               <textarea
                 id="description"
@@ -124,7 +127,7 @@ const EditTask = ({ isModalOpen, setIsModalOpen, task, refetch }) => {
               type="submit"
               className="py-2 px-4 w-full bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-300"
             >
-              Create Task
+              Update Task
             </button>
           </form>
         </div>

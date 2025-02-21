@@ -5,6 +5,7 @@ import { MdDelete } from "react-icons/md";
 import { formateDateTime } from "../utils/fomateDateTime";
 import { RxCross1 } from "react-icons/rx";
 import EditTask from "./EditTask";
+import toast from "react-hot-toast";
 
 const TaskCard = ({ task, refetch }) => {
   const { _id, title, description, time, category } = task || {};
@@ -13,20 +14,28 @@ const TaskCard = ({ task, refetch }) => {
 
   const handleDelete = async (id) => {
     console.log("Delete this", id);
-    const { data } = await axios.delete(`http://localhost:5000/tasks/${id}`);
-    refetch();
+    try {
+      const { data } = await axios.delete(`http://localhost:5000/tasks/${id}`);
+
+      if (data.deletedCount > 0) {
+        refetch();
+        toast.success("Successfully Deleted!");
+      }
+    } catch (error) {
+      console.log("Delete Task", error);
+    }
   };
 
   // handle edit task
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  const handleEdit = async(id) => {
-    console.log(id);
-    const {data:task} = await axios.get(`http://localhost:5000/tasks/${id}`)
+  const handleEdit = async (id) => {
+    const { data: task } = await axios.get(`http://localhost:5000/tasks/${id}`);
     setIsEditModalOpen(true);
-    console.log(task)
+    console.log(task);
   };
+
+  
   return (
     <>
       <div className="bg-white shadow-md rounded-lg p-2.5 border-l-4 border-gray-400">
@@ -52,16 +61,20 @@ const TaskCard = ({ task, refetch }) => {
           <p> {formattedTime}</p>
         </div>
 
-        {/* indicator */}
         <div className="flex items-center justify-between mt-2.5">
-          <FaEdit
+          <button
             onClick={() => handleEdit(_id)}
-            className="hover:cursor-pointer text-gray-800"
-          />
-          <MdDelete
+            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition duration-300 p-1 rounded  bg-gray-200 hover:cursor-pointer"
+          >
+            <FaEdit className="w-5 h-5" />
+          </button>
+
+          <button
             onClick={() => handleDelete(_id)}
-            className="hover:cursor-pointer text-gray-800"
-          />
+            className="flex items-center gap-1 text-red-700 hover:text-red-800 transition duration-300 p-1 rounded  bg-gray-200 hover:cursor-pointer"
+          >
+            <MdDelete className="w-5 h-5" />
+          </button>
         </div>
       </div>
       {/* modal */}

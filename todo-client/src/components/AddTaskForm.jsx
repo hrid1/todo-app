@@ -7,6 +7,8 @@ import { AuthContext } from "../provider/AuthProvider";
 
 const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
   const { user } = useContext(AuthContext);
+  const [isLoading, setIsLoading] = useState(false);
+
   console.log(user.email);
 
   const [taskData, setTaskData] = useState({
@@ -27,6 +29,7 @@ const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (!validateFrom(taskData)) return;
 
@@ -35,20 +38,21 @@ const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
     // send it to server
     const { data } = await axios.post("http://localhost:5000/tasks", taskData);
 
-    if (data.insertedId > 0) {
-      console.log("task added");
+    try {
+      // Reset form
+      setTaskData({
+        title: "",
+        description: "",
+        category: "To-Do",
+        owner: user?.email,
+        time: new Date().toISOString(),
+      });
+      setIsLoading(false);
+      setIsModalOpen(false);
+      refetch();
+    } catch (error) {
+      console.log(error);
     }
-
-    // Reset form
-    setTaskData({
-      title: "",
-      description: "",
-      category: "To-Do",
-      ...taskData,
-      // time: new Date().toISOString(),
-    });
-    setIsModalOpen(false);
-    refetch();
   };
 
   return (
@@ -127,9 +131,10 @@ const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
 
             <button
               type="submit"
-              className="py-2 px-4 w-full bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-300"
+              disabled={isLoading}
+              className="py-2 px-4 w-full bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-300 hover:cursor-pointer"
             >
-              Create Task
+              {isLoading ? "Adding" : "Create Task"}
             </button>
           </form>
         </div>
