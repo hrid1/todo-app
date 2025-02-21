@@ -11,12 +11,8 @@ const Tasks = () => {
   const handleAddTask = () => {
     setIsModalOpen(!isModalOpen);
   };
-
-  const {
-    isLoading,
-    data: tasks = [],
-    refetch,
-  } = useQuery({
+  // fetch data
+  const { data: tasks = [], refetch } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
       const response = await axios.get("http://localhost:5000/tasks");
