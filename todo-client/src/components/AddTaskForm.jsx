@@ -36,7 +36,7 @@ const AddTaskForm = ({ isModalOpen, setIsModalOpen, refetch }) => {
     // console.log("TaskData ", taskData);
 
     // send it to server
-    const { data } = await axios.post("http://localhost:5000/tasks", taskData);
+    const { data } = await axios.post("https://todo-task-pi-lyart.vercel.app/tasks", taskData);
 
     try {
       // Reset form

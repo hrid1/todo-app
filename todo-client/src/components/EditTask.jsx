@@ -29,7 +29,7 @@ const EditTask = ({ isModalOpen, setIsModalOpen, task, refetch }) => {
 
     // send it to server
     const { data } = await axios.put(
-      `http://localhost:5000/tasks/${_id}`,
+      `https://todo-task-pi-lyart.vercel.app/tasks/${_id}`,
       taskData
     );
 

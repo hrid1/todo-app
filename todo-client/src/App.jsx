@@ -5,7 +5,7 @@ import { AuthContext } from "./provider/AuthProvider";
 function App() {
 
   const user = useContext(AuthContext);
-  console.log(user)
+  // console.log(user)
   return (
     <>
       <h2 className="">Welcome to Task Management</h2>

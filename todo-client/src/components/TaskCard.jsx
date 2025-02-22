@@ -6,6 +6,8 @@ import { formateDateTime } from "../utils/fomateDateTime";
 import { RxCross1 } from "react-icons/rx";
 import EditTask from "./EditTask";
 import toast from "react-hot-toast";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const TaskCard = ({ task, refetch }) => {
   const { _id, title, description, time, category } = task || {};
@@ -13,16 +15,17 @@ const TaskCard = ({ task, refetch }) => {
   // console.log(task);
 
   const handleDelete = async (id) => {
-    console.log("Delete this", id);
     try {
-      const { data } = await axios.delete(`http://localhost:5000/tasks/${id}`);
+      const { data } = await axios.delete(
+        `https://todo-task-pi-lyart.vercel.app/tasks/${id}`
+      );
 
       if (data.deletedCount > 0) {
         refetch();
         toast.success("Successfully Deleted!");
       }
     } catch (error) {
-      console.log("Delete Task", error);
+      // console.log("Delete Task", error);
     }
   };
 
@@ -30,15 +33,28 @@ const TaskCard = ({ task, refetch }) => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const handleEdit = async (id) => {
-    const { data: task } = await axios.get(`http://localhost:5000/tasks/${id}`);
+    const { data: task } = await axios.get(
+      `https://todo-task-pi-lyart.vercel.app/tasks/${id}`
+    );
     setIsEditModalOpen(true);
-    console.log(task);
+    // console.log(task);
   };
 
-  
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: _id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
   return (
     <>
-      <div className="bg-white shadow-md rounded-lg p-2.5 border-l-4 border-gray-400">
+      <div
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        className="bg-white shadow-md rounded-lg p-2.5 border-l-4 border-gray-400"
+      >
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-semibold text-gray-800 truncate">
             {title}
